@@ -45,7 +45,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         # with:
         #   # 那些目标仅在 macos 运行器上使用，因此将其置于 `if` 语句中，以稍微加快 Windows 和 Linux 的构建速度。
-        #   targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+        #   targets: ${{ startsWith(matrix.platform, 'macos') && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -109,9 +109,9 @@ jobs:
         # webkitgtk 4.0 适用于 Tauri v1，webkitgtk 4.1 适用于 Tauriv2
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        # with:
-        #   # 那些目标仅在 macos 运行器上使用，因此将其置于 `if` 语句中，以稍微加快 Windows 和 Linux 的构建速度。
-        #   targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+        with:
+          # 那些目标仅在 macos 运行器上使用，因此将其置于 `if` 语句中，以稍微加快 Windows 和 Linux 的构建速度。
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
