@@ -4,7 +4,7 @@ on:
   push:
     # 匹配特定标签 (refs/tags)
     tags:
-      - "v*" # 推送事件匹配 v*
+      - 'v*' # 推送事件匹配 v*
   pull_request:
     types:
       - closed
@@ -22,7 +22,8 @@ jobs:
     runs-on: ${{ matrix.platform }}
     outputs:
       platform: ${{ matrix.platform }}
-      merge: github.event.pull_request.merge
+      merged: github.event.pull_request.merged
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -79,13 +80,13 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'EcoPaste v__VERSION__'
-          releaseBody: ""
+          releaseBody: ''
           releaseDraft: true
           prerelease: false
 
   pr-build:
     needs: build-prerelease
-    if: needs.build-prerelease.outputs.merge == true
+    if: needs.build-prerelease.outputs.merged == true
     runs-on: ${{ needs.build-prerelease.outputs.platform }}
     steps:
       - name: Build the app
@@ -124,5 +125,3 @@ jobs:
             src-tauri/target/release/bundle/appimage/*.AppImage
           retention-days: 5
           compression-level: 0
-
-
