@@ -71,9 +71,10 @@ jobs:
           compression-level: 0 # 压缩级别 0-9 (0 为无压缩)
 
       - name: Upload artifacts (MacOS)
+        if: startsWith(matrix.platform, 'macos')
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform == 'macos-latest' && 'macos-aarch64' || 'macos-x86_64' }}
+          name: ${{ matrix.platform == 'macos-latest' && 'macos-aarch64' || (matrix.platform == 'macos-12' && 'macos-x86_64') }}
           path: src-tauri/target/release/bundle/dmg/*.dmg
           retention-days: 5
           compression-level: 0
