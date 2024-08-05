@@ -11,6 +11,25 @@ on:
   workflow_dispatch:
 
 jobs:
+  check-merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check commit message
+        id: check
+        run: |
+          commit_messages=$(git log --format=%s --merges -n 1)
+          if [[ $commit_messages =~ ^(feat|fix|refactor|perf): ]]; then
+            echo "Commit message matches the required pattern."
+            echo "CHECK=true" >> $GITHUB_ENV
+          else
+            echo "Commit message does not match the required pattern."
+            echo "CHECK=false" >> $GITHUB_ENV
+            exit 1
+          fi
+    outputs:
+      match: ${{ steps.check.outputs.match }}
+
   create-release:
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
@@ -43,9 +62,9 @@ jobs:
         # webkitgtk 4.0 适用于 Tauri v1，webkitgtk 4.1 适用于 Tauriv2
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        # with:
-        #   # 那些目标仅在 macos 运行器上使用，因此将其置于 `if` 语句中，以稍微加快 Windows 和 Linux 的构建速度。
-        #   targets: ${{ startsWith(matrix.platform, 'macos') && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+        with:
+          # 那些目标仅在 macos 运行器上使用，因此将其置于 `if` 语句中，以稍微加快 Windows 和 Linux 的构建速度。
+          targets: ${{ startsWith(matrix.platform, 'macos') && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -77,7 +96,9 @@ jobs:
           prerelease: false
 
   pr-build:
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
+    needs: check-merge
+    if: needs.check-merge.outputs.match == 'true'
     permissions:
       contents: write
     strategy:
@@ -109,9 +130,9 @@ jobs:
         # webkitgtk 4.0 适用于 Tauri v1，webkitgtk 4.1 适用于 Tauriv2
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          # 那些目标仅在 macos 运行器上使用，因此将其置于 `if` 语句中，以稍微加快 Windows 和 Linux 的构建速度。
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+        # with:
+        #   # 那些目标仅在 macos 运行器上使用，因此将其置于 `if` 语句中，以稍微加快 Windows 和 Linux 的构建速度。
+        #   targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
