@@ -1,8 +1,6 @@
-name: Cron Build
+name: Auto Build
 
 on:
-  # schedule:
-  #   - cron: "0 22 * * *"
   workflow_dispatch:
     inputs:
       isDebug:
@@ -36,7 +34,7 @@ env:
   BUILD_PATH: ${{ github.event.inputs.isDebug && 'debug' || 'release' }}
 
 jobs:
-  cron-build:
+  auto-build:
     permissions:
       contents: write
     strategy:
@@ -97,8 +95,8 @@ jobs:
           path: |
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/msi/*.msi
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/nsis/*.exe
-          retention-days: 2 # 保留天数
-          compression-level: 0 # 压缩级别 0-9 (0 为无压缩)
+          retention-days: 5 # 保留天数
+          compression-level: 6 # 压缩级别 0-9 (0 为无压缩)
 
       - name: Upload artifacts (MacOS)
         if: startsWith(matrix.platform, 'macos')
@@ -106,8 +104,8 @@ jobs:
         with:
           name: ${{ matrix.platform == 'macos-latest' && 'macos-aarch64' || (matrix.platform == 'macos-12' && 'macos-x86_64') }}
           path: src-tauri/target/${{ env.BUILD_PATH }}/bundle/dmg/*.dmg
-          retention-days: 2
-          compression-level: 0
+          retention-days: 5
+          compression-level: 6
 
       - name: Upload artifacts (Linux)
         if: matrix.platform == 'ubuntu-20.04'
@@ -118,5 +116,5 @@ jobs:
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/deb/*.deb
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/rpm/*.rpm
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/appimage/*.AppImage
-          retention-days: 2
+          retention-days: 5
           compression-level: 0
