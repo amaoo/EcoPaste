@@ -34,17 +34,24 @@ env:
   BUILD_PATH: ${{ inputs.isDebug && 'debug' || 'release' }}
 
 jobs:
+  platform:
+    runs-on: ubuntu-latest
+    outputs:
+      output: ${{ steps.step.outputs }}
+    steps:
+      - id: step
+        # 根据输入选择相关平台
+        run: |
+          echo ::set-output name=output::${{ inputs.platform_windows && 'windows-latest' || (inputs.platform_linux && 'ubuntu-20.04' || (inputs.platform_macos_aarch64 && 'macos-latest' || (inputs.platform_macos_x86_64 && 'macos-12' || ''))) }}
+      
   auto-build:
+    needs: platform
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - ${{ (inputs.platform_windows && 'windows-latest') || '' }}
-          - ${{ (inputs.platform_linux && 'ubuntu-20.04') || '' }}
-          - ${{ (inputs.platform_macos_aarch64 && 'macos-12') || '' }}
-          - ${{ (inputs.platform_macos_x86_64 && 'macos-latest') || '' }}
+        platform: ${{ toJSON(needs.platform.outputs) }}
 
     runs-on: ${{ matrix.platform }}
 
