@@ -5,7 +5,7 @@ on:
     inputs:
       isDebug:
         description: 'is debug?'
-        required: false
+        required: true
         type: boolean
         default: false
       platform_windows:
@@ -30,8 +30,8 @@ on:
         default: false
 
 env:
-  BUILD_MODE: ${{ github.event.inputs.isDebug && '--debug' || '' }}
-  BUILD_PATH: ${{ github.event.inputs.isDebug && 'debug' || 'release' }}
+  BUILD_MODE: ${{ inputs.isDebug && '--debug' || '' }}
+  BUILD_PATH: ${{ inputs.isDebug && 'debug' || 'release' }}
 
 jobs:
   auto-build:
@@ -41,10 +41,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - ${{ (github.event.inputs.platform_windows && 'windows-latest') || '' }}
-          - ${{ (github.event.inputs.platform_linux && 'ubuntu-20.04') || '' }}
-          - ${{ (github.event.inputs.platform_macos_aarch64 && 'macos-12') || '' }}
-          - ${{ (github.event.inputs.platform_macos_x86_64 && 'macos-latest') || '' }}
+          - ${{ (inputs.platform_windows && 'windows-latest') || '' }}
+          - ${{ (inputs.platform_linux && 'ubuntu-20.04') || '' }}
+          - ${{ (inputs.platform_macos_aarch64 && 'macos-12') || '' }}
+          - ${{ (inputs.platform_macos_x86_64 && 'macos-latest') || '' }}
 
     runs-on: ${{ matrix.platform }}
 
