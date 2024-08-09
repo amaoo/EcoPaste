@@ -3,6 +3,7 @@ name: Cron Build
 on:
   schedule:
     - cron: "0 22 * * *"
+  workflow_dispatch:
     
 jobs:
   cron-build:
