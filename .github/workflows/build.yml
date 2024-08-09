@@ -41,11 +41,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          ${{fromJson(github.event.inputs.platform_windows && '["windows-latest"]' ||
-          github.event.inputs.platform_linux && '["ubuntu-latest"]' ||
-          github.event.inputs.platform_macos_aarch64 && '["macos-12"]' ||
-          github.event.inputs.platform_macos_x86_64 && '["macos-latest"]' ||
-          '[]')}}
+          - ${{ (github.event.inputs.platform_windows && 'windows-latest') || '' }}
+          - ${{ (github.event.inputs.platform_linux && 'ubuntu-20.04') || '' }}
+          - ${{ (github.event.inputs.platform_macos_aarch64 && 'macos-12') || '' }}
+          - ${{ (github.event.inputs.platform_macos_x86_64 && 'macos-latest') || '' }}
 
     runs-on: ${{ matrix.platform }}
 
@@ -96,7 +95,7 @@ jobs:
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/msi/*.msi
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/nsis/*.exe
           retention-days: 5 # 保留天数
-          compression-level: 6 # 压缩级别 0-9 (0 为无压缩)
+          compression-level: 0 # 压缩级别 0-9 (0 为无压缩)
 
       - name: Upload artifacts (MacOS)
         if: startsWith(matrix.platform, 'macos')
@@ -105,7 +104,7 @@ jobs:
           name: ${{ matrix.platform == 'macos-latest' && 'macos-aarch64' || (matrix.platform == 'macos-12' && 'macos-x86_64') }}
           path: src-tauri/target/${{ env.BUILD_PATH }}/bundle/dmg/*.dmg
           retention-days: 5
-          compression-level: 6
+          compression-level: 0
 
       - name: Upload artifacts (Linux)
         if: matrix.platform == 'ubuntu-20.04'
