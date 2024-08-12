@@ -3,6 +3,11 @@ name: Multi-platform Build
 on:
   workflow_dispatch:
     inputs:
+      updater:
+        description: 'Enable updater?'
+        required: true
+        type: boolean
+        default: true
       isDebug:
         description: 'is debug?'
         required: true
@@ -35,6 +40,7 @@ on:
         default: 2
 
 env:
+  UPDATE_SWITCH: ${{ inputs.updater}}
   BUILD_MODE: ${{ inputs.isDebug && '--debug' || '' }}
   BUILD_PATH: ${{ inputs.isDebug && 'debug' || 'release' }}
   RETENTION_DAYS: ${{ inputs.retention_days }}
@@ -116,7 +122,12 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
           NO_STRIP: true
-        run: pnpm tauri build ${{ env.BUILD_MODE}}
+        run: |
+          if [ "${{ env.UPDATE_SWITCH }}" == "true" ]; then
+            pnpm tauri build ${{ env.BUILD_MODE}}
+          else
+            pnpm tauri build ${{ env.BUILD_MODE}} -c "{"tauri": {"updater": {"active": false}}}"
+          fi
 
       - name: Upload artifacts (Windows)
         if: matrix.os == 'windows-latest'
