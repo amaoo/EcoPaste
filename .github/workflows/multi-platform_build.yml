@@ -126,7 +126,7 @@ jobs:
           if [ "${{ env.UPDATE_SWITCH }}" == "true" ]; then
             pnpm tauri build ${{ env.BUILD_MODE}}
           else
-            pnpm tauri build ${{ env.BUILD_MODE}} -c "{"tauri": {"updater": {"active": false}}}"
+            pnpm tauri build ${{ env.BUILD_MODE}} -c '{\"tauri\": {\"updater\": {\"active\": false}}}''
           fi
 
       - name: Upload artifacts (Windows)
