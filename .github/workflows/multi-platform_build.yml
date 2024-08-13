@@ -89,11 +89,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Configure updater in Tauri config
-        if: ${{ !inputs.updater}}
-        uses: mikefarah/yq@v4.44.3
-        with:
-          cmd: yq -p=json -o=json -i '.tauri.updater.active = false' src-tauri/tauri.conf.json
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
@@ -120,7 +115,19 @@ jobs:
           workspaces: './src-tauri -> target'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
+      - name: Configure updater in Tauri config
+        if: ${{ !inputs.updater}}
+        run: |
+          const fs = require('fs');
+          const filePath = 'src-tauri/tauri.conf.json';
+          const config = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          
+          // Modify the updater active field to false
+          config.tauri.updater.active = false;
+          
+          fs.writeFileSync(filePath, JSON.stringify(config, null, 2));
+          console.log('Updated tauri.conf.json:', config);
+        shell: node
       - name: Build the app
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
