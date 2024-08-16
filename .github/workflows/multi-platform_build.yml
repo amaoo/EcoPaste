@@ -55,15 +55,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Configure updater in Tauri config
+      - name: Update tauri.conf.json
         if: ${{ !inputs.updater}}
-        uses: mikefarah/yq@v4.44.3
+        uses: mikefarah/yq@master
         with:
           cmd: |
             yq -p=json -o=json -i '.tauri.updater.active = false' src-tauri/tauri.conf.json
-            # version=$(git description)
-            # yq -p=json -o=json -i '.package.version = "'$version'"' src-tauri/tauri.conf.json
-            cat src-tauri/tauri.conf.json
+            version=$(git describe --tags)
+            yq -p=json -o=json -i '.package.version = "'$version'"' src-tauri/tauri.conf.json
       - name: Upload artifact
         if: ${{ !inputs.updater}}
         uses: actions/upload-artifact@v4
@@ -114,6 +113,8 @@ jobs:
         with:
           name: tauri-config
           path: src-tauri
+      - name: Show tauri.conf.json
+        run: cat src-tauri/tauri.conf.json
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
