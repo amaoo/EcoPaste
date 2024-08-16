@@ -59,10 +59,7 @@ jobs:
         if: ${{ !inputs.updater}}
         uses: mikefarah/yq@master
         with:
-          cmd: |
-            yq -p=json -o=json -i '.tauri.updater.active = false' src-tauri/tauri.conf.json
-            version=$(git describe --tags)
-            yq -p=json -o=json -i '.package.version = "'$version'"' src-tauri/tauri.conf.json
+          cmd: yq -p=json -o=json -i '.tauri.updater.active = false' src-tauri/tauri.conf.json
       - name: Upload artifact
         if: ${{ !inputs.updater}}
         uses: actions/upload-artifact@v4
