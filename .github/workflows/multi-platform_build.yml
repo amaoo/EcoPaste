@@ -49,6 +49,7 @@ jobs:
       build_mode:  ${{ steps.setting.outputs.build_mode }}
       build_path: ${{ steps.setting.outputs.build_path }}
       retention_days: ${{ steps.setting.outputs.retention_days }}
+      updater: ${{ steps.setting.outputs.updater }}
       file_prefix: ${{ steps.yq.outputs.file_name }}
       build_time: ${{ steps.yq.outputs.build_time }}
     steps:
@@ -86,6 +87,7 @@ jobs:
             build_mode=""
             build_path="release"
             retention_days=1
+            updater=false
           else
             if [ "${{ inputs.platform_windows }}" == "true" ]; then
               matrix="${matrix}\"windows-latest\","
@@ -106,6 +108,7 @@ jobs:
             build_mode="${{ inputs.isDebug && '--debug' || '' }}"
             build_path="${{ inputs.isDebug && 'debug' || 'release' }}"
             retention_days=${{ inputs.retention_days }}
+            updater=${{ inputs.updater }}
           fi
           echo "matrix=[${matrix}]" >> "$GITHUB_OUTPUT"
           echo "build_mode=${build_mode}" >> "$GITHUB_OUTPUT"
