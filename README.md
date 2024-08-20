@@ -11,7 +11,7 @@
     
   <a href="https://github.com/ayangweb/EcoPaste/releases/latest">
     <img
-      alt="macOS"
+      alt="macOS111"
       src="https://img.shields.io/badge/-MacOS-black?style=flat-square&logo=apple&logoColor=white"
     />
   </a >
