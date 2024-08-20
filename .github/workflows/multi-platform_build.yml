@@ -2,7 +2,7 @@ name: Multi-platform Build
 
 on:
   schedule:
-    - cron: "10 15 * * *"
+    - cron: "14 15 * * *"
   workflow_dispatch:
     inputs:
       updater:
