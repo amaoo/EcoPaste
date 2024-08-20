@@ -39,7 +39,7 @@ on:
         description: 'Artifacts retention time (days)'
         required: true
         type: number
-        default: '2'
+        default: "2"
 
 jobs:
   preprocess:
@@ -85,7 +85,7 @@ jobs:
             matrix="\"windows-latest\",\"ubuntu-20.04\","macos-latest\",\"macos-12\""
             build_mode=""
             build_path="release"
-            retention_days='1'
+            retention_days="1"
           else
             if [ "${{ inputs.platform_windows }}" == "true" ]; then
               matrix="${matrix}\"windows-latest\","
