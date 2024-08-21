@@ -1,4 +1,4 @@
-name: Multi-platform Build
+name: Build Beta Package
 
 on:
   schedule:
@@ -49,23 +49,18 @@ jobs:
       build_mode:  ${{ steps.setting.outputs.build_mode }}
       build_path: ${{ steps.setting.outputs.build_path }}
       retention_days: ${{ steps.setting.outputs.retention_days }}
-      file_prefix: ${{ steps.yq.outputs.file_name }}
-      build_time: ${{ steps.yq.outputs.build_time }}
+      file_prefix: ${{ steps.filename.outputs.file_prefix }}
+      # build_time: ${{ steps.filename.outputs.build_time }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Install yq
-        id: yq
         uses: mikefarah/yq@master
         with:
-          cmd: |
-            productName=$(yq e '.package.productName' src-tauri/tauri.conf.json)
-            version=$(yq e '.version' package.json)
-            build_time=$(TZ=UTC-8 date +%y%m%d%H)
-            echo "file_name=${productName}_${version}_Beta${build_time}" >> "$GITHUB_OUTPUT"
-            echo "build_time=${build_time}" >> "$GITHUB_OUTPUT"
+          cmd: yq -V
 
       - name: Update tauri.conf.json
         if: ${{ github.event_name == 'schedule' || !inputs.updater}}
@@ -77,7 +72,18 @@ jobs:
           name: tauri-config
           path: src-tauri/tauri.conf.json
           retention-days: 1
-      - name: Setting env
+
+      - name: Get file name
+        id: filename 
+        run: |
+            productName=$(yq e '.package.productName' src-tauri/tauri.conf.json)
+            # version=$(yq e '.version' package.json)
+            # build_time=$(TZ=UTC-8 date +%y%m%d%H)
+            git_des=$(git describe --long --tags --always --dirty)
+            echo "file_prefix=${productName}_${git_des}" >> "$GITHUB_OUTPUT"
+            # echo "build_time=${build_time}" >> "$GITHUB_OUTPUT"
+
+      - name: Setting variable
         id: setting
         run: |
           matrix=""
@@ -127,7 +133,7 @@ jobs:
       BUILD_PATH:  ${{ needs.preprocess.outputs.build_path }}
       RETENTION_DAYS:  ${{ needs.preprocess.outputs.retention_days }}
       FILE_PREFIX: ${{ needs.preprocess.outputs.file_prefix }}
-      BUILD_TIME: ${{ needs.preprocess.outputs.build_time }}
+      # BUILD_TIME: ${{ needs.preprocess.outputs.build_time }}
       TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
       TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
       NO_STRIP: true
@@ -195,9 +201,9 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: windows_Beta${{ env.BUILD_TIME }}
+          name: windows_Beta_${{ env.FILE_PREFIX }}
           path: |
-            src-tauri/target/${{ env.BUILD_PATH }}/bundle/msi/*.msi
+            # src-tauri/target/${{ env.BUILD_PATH }}/bundle/msi/*.msi
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/nsis/*.exe
           retention-days: ${{ env.RETENTION_DAYS}}
           compression-level: 0
@@ -206,7 +212,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os == 'macos-latest' && 'macos-aarch64' || 'macos-x86_64' }}_Beta${{ env.BUILD_TIME }}
+          name: ${{ matrix.os == 'macos-latest' && 'macos-aarch64' || 'macos-x86_64' }}_Beta_${{ env.FILE_PREFIX }}
           path: src-tauri/target/${{ env.BUILD_PATH }}/bundle/dmg/*.dmg
           retention-days: ${{ env.RETENTION_DAYS}}
           compression-level: 0
@@ -215,7 +221,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         uses: actions/upload-artifact@v4
         with:
-          name: linux_Beta${{ env.BUILD_TIME }}
+          name: linux_Beta_${{ env.FILE_PREFIX }}
           path: |
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/deb/*.deb
             src-tauri/target/${{ env.BUILD_PATH }}/bundle/rpm/*.rpm
