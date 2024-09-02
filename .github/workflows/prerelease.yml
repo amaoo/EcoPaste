@@ -211,7 +211,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         uses: ncipollo/release-action@v1
         with:
-          name: EcoPaste Nighty Build
+          name: EcoPaste Daily Build
           body: "此版本为测试版，可能存在不稳定情况，升级前请务必备份好数据。"
           tag: "beta"
           allowUpdates: true
@@ -223,7 +223,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         uses: ncipollo/release-action@v1
         with:
-          name: EcoPaste Nighty Build
+          name: EcoPaste Daily Build
           body: "此版本为测试版，可能存在不稳定情况，升级前请务必备份好数据。"
           tag: "beta"
           allowUpdates: true
@@ -235,7 +235,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: ncipollo/release-action@v1
         with:
-          name: EcoPaste Nighty Build
+          name: EcoPaste Daily Build
           body: "此版本为测试版，可能存在不稳定情况，升级前请务必备份好数据。"
           tag: "beta"
           allowUpdates: true
