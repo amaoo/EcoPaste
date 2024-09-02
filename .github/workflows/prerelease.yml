@@ -87,6 +87,7 @@ jobs:
         with:
           name: EcoPaste Nighty Build
           tag: "beta"
+          allowUpdates: true
           body: "此版本为测试版，可能存在不稳定情况，升级前请务必备份好数据。"
           prerelease: true
 
@@ -221,6 +222,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: "beta"
+          allowUpdates: true
           artifacts: "src-tauri/target/release/bundle/dmg/*.dmg"      
 
       - name: Publish Linux Pre-Release
@@ -228,6 +230,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: "beta"
+          allowUpdates: true
           artifacts: "src-tauri/target/release/bundle/deb/*.deb,src-tauri/target/release/bundle/rpm/*.rpm,src-tauri/target/release/bundle/appimage/*.AppImage" 
 
       - name: Publish Windows Pre-Release
@@ -235,6 +238,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: "beta"
+          allowUpdates: true
           artifacts: "src-tauri/target/release/bundle/nsis/*.exe"
       
       - name: Upload artifacts (Windows)
