@@ -81,7 +81,16 @@ jobs:
         uses: richardsimko/update-tag@v1
         with:
           tag_name: beta
-          
+
+      - name: Publish Pre-Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: EcoPaste Daily Build
+          tag: "beta"
+          allowUpdates: true
+          prerelease: true
+          generateReleaseNotes: true
+         
       - name: Get file name
         id: filename 
         run: |
@@ -211,36 +220,28 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         uses: ncipollo/release-action@v1
         with:
-          name: EcoPaste Daily Build
           # body: "此版本为测试版，存在不稳定情况，安装前请务必备份好数据。"
           tag: "beta"
           allowUpdates: true
           prerelease: true
-          generateReleaseNotes: true
           artifacts: "src-tauri/target/release/bundle/dmg/*.dmg"      
 
       - name: Publish Linux Pre-Release
         if: matrix.os == 'ubuntu-20.04'
         uses: ncipollo/release-action@v1
         with:
-          name: EcoPaste Daily Build
-          # body: "此版本为测试版，存在不稳定情况，安装前请务必备份好数据。"
           tag: "beta"
           allowUpdates: true
           prerelease: true
-          generateReleaseNotes: true
           artifacts: "src-tauri/target/release/bundle/deb/*.deb,src-tauri/target/release/bundle/rpm/*.rpm,src-tauri/target/release/bundle/appimage/*.AppImage" 
 
       - name: Publish Windows Pre-Release
         if: matrix.os == 'windows-latest'
         uses: ncipollo/release-action@v1
         with:
-          name: EcoPaste Daily Build
-          # body: "此版本为测试版，存在不稳定情况，安装前请务必备份好数据。"
           tag: "beta"
           allowUpdates: true
           prerelease: true
-          generateReleaseNotes: true
           artifacts: "src-tauri/target/release/bundle/nsis/*.exe"
       
       # - name: Upload artifacts (Windows)
