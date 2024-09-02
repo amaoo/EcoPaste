@@ -217,11 +217,28 @@ jobs:
           mv src-tauri/target/release/bundle/appimage/*.AppImage src-tauri/target/${{ env.FILE_PREFIX }}-amd64.AppImage
 
       - name: Publish Macos Pre-Release
+        if: startsWith(matrix.os, 'macos')
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: "src-tauri/target/*.exe;src-tauri/target/*.dmg;src-tauri/target/*.deb;src-tauri/target/*.rpm;src-tauri/target/*.AppImage;"
+          files: "src-tauri/target/*.exe;src-tauri/target/*.dmg;src-tauri/target/*.deb;src-tauri/target/*.rpm;src-tauri/target/*.AppImage"
           repo-token: ${{ secrets.GITHUB_TOKEN }} 
           release-tag: "beta"
+          
+      # - name: Publish Macos Pre-Release
+      #   if: matrix.os == 'ubuntu-20.04'
+      #   uses: AButler/upload-release-assets@v3.0
+      #   with:
+      #     files: "src-tauri/target/*.dmg"
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }} 
+      #     release-tag: "beta"
+      # - name: Publish Macos Pre-Release
+      #   if: matrix.os == 'windows-latest'
+      #   uses: AButler/upload-release-assets@v3.0
+      #   with:
+      #     files: "src-tauri/target/*.exe;"
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }} 
+      #     release-tag: "beta"
+
       # - name: Publish Macos Pre-Release
       #   if: startsWith(matrix.os, 'macos')
       #   uses: ncipollo/release-action@v1
