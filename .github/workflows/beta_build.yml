@@ -86,7 +86,7 @@ jobs:
             retention_days='1'
           else
             if [ "${{ inputs.platform_windows }}" == "true" ]; then
-              matrix="${matrix}\"windows-latest\","
+              matrix="${matrix}\"x86_64-pc-windows-msvc\","
             fi
             if [ "${{ inputs.platform_linux }}" == "true" ]; then
               matrix="${matrix}\"ubuntu-20.04\","
