@@ -20,13 +20,8 @@ on:
         required: true
         type: boolean
         default: false
-      platform_macos_aarch64:
-        description: "macos-aarch64"
-        required: true
-        type: boolean
-        default: false
-      platform_macos_x86_64:
-        description: "macos-x86_64"
+      platform_macos:
+        description: "macos"
         required: true
         type: boolean
         default: false
@@ -41,7 +36,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.setting.outputs.matrix }}
-      target: ${{ steps.setting.outputs.target }}
       retain_days: ${{ steps.setting.outputs.retain_days }}
       file_prefix: ${{ steps.filename.outputs.file_prefix }}
       # build_time: ${{ steps.filename.outputs.build_time }}
@@ -83,7 +77,6 @@ jobs:
         id: setting
         run: |
           matrix=""
-          target=""
           if [ "${{ github.event_name }}" == "schedule" ]; then
             matrix="\"windows-latest\",\"ubuntu-22.04\",\"macos-latest\",\"macos-latest\""
             retain_days='1'
@@ -96,11 +89,9 @@ jobs:
             fi
             if [ "${{ inputs.platform_macos_aarch64 }}" == "true" ]; then
               matrix="${matrix}\"macos-latest\","
-              target="aarch64-apple-darwin"
             fi
             if [ "${{ inputs.platform_macos_x86_64 }}" == "true" ]; then
               matrix="${matrix}\"macos-latest\","
-              target="x86_64-apple-darwin"
             fi
             if [ -z "${matrix}" ]; then
               matrix="\"windows-latest\","
@@ -109,7 +100,6 @@ jobs:
             retain_days="${{ inputs.retain_days }}"
           fi
           echo "matrix=[${matrix}]" >> "$GITHUB_OUTPUT"
-          echo "target=${target}" >> "$GITHUB_OUTPUT"
           echo "retain_days=${retain_days}" >> "$GITHUB_OUTPUT"
 
   auto-build:
@@ -123,7 +113,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      TARGET: ${{ needs.preprocess.outputs.target }}
       retain_days: ${{ needs.preprocess.outputs.retain_days }}
       FILE_PREFIX: ${{ needs.preprocess.outputs.file_prefix }}
       # BUILD_TIME: ${{ needs.preprocess.outputs.build_time }}
@@ -175,38 +164,38 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build the app 
+      - name: Build MacOS app 
         if: startsWith(matrix.os, 'macos')
-        run: pnpm tauri build --target ${{ env.TARGET }}
+        run: |
+          pnpm tauri build --target aarch64-apple-darwin
+          pnpm tauri build --target x86_64-apple-darwin
 
-      - name: Build the app
+      - name: Build Other app
         if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-22.04'
         run: pnpm tauri build
 
-      - name: Rename macos-aarch64
-        if: matrix.os == 'macos-latest' && ${{ env.TARGET }} == 'aarch64-apple-darwin'
-        run: mv src-tauri/target/${{ env.TARGET }}/release/bundle/dmg/*.dmg src-tauri/target/${{ env.FILE_PREFIX }}-aarch64.dmg
-
-      - name: Rename macos-x86_64
-        if: matrix.os == 'macos-latest' && ${{ env.TARGET }} == 'x86_64-apple-darwin'
-        run: mv src-tauri/target/${{ env.TARGET }}/release/bundle/dmg/*.dmg src-tauri/target/${{ env.FILE_PREFIX }}-x64.dmg
+      - name: Rename macos
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          mv src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg src-tauri/target/${{ env.FILE_PREFIX }}_aarch64.dmg
+          mv src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg src-tauri/target/${{ env.FILE_PREFIX }}_x64.dmg
 
       - name: Rename windows
         if: matrix.os == 'windows-latest'
-        run: mv src-tauri/target/release/bundle/nsis/*.exe src-tauri/target/${{ env.FILE_PREFIX }}-x64.exe
+        run: mv src-tauri/target/release/bundle/nsis/*.exe src-tauri/target/${{ env.FILE_PREFIX }}_x64-setup.exe
 
       - name: Rename linux
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          mv src-tauri/target/release/bundle/deb/*.deb src-tauri/target/${{ env.FILE_PREFIX }}-x64.deb
-          mv src-tauri/target/release/bundle/rpm/*.rpm src-tauri/target/${{ env.FILE_PREFIX }}-x64.rpm
-          mv src-tauri/target/release/bundle/appimage/*.AppImage src-tauri/target/${{ env.FILE_PREFIX }}-x64.AppImage
+          mv src-tauri/target/release/bundle/deb/*.deb src-tauri/target/${{ env.FILE_PREFIX }}_amd64.deb
+          mv src-tauri/target/release/bundle/rpm/*.rpm src-tauri/target/${{ env.FILE_PREFIX }}_x64.rpm
+          mv src-tauri/target/release/bundle/appimage/*.AppImage src-tauri/target/${{ env.FILE_PREFIX }}_amd64.AppImage
 
       - name: Upload artifacts (Windows)
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.FILE_PREFIX }}_windows-x64
+          name: ${{ env.FILE_PREFIX }}-windows_x64
           path: src-tauri/target/*.exe
           retention-days: ${{ env.retain_days}}
           compression-level: 0
@@ -215,7 +204,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.FILE_PREFIX }}_${{ matrix.os == 'macos-latest' && 'macos-aarch64' || 'macos-x64' }}
+          name: ${{ env.FILE_PREFIX }}-macos_x64_aarch64
           path: src-tauri/target/*.dmg
           retention-days: ${{ env.retain_days}}
           compression-level: 0
@@ -224,7 +213,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.FILE_PREFIX }}_linux-x64
+          name: ${{ env.FILE_PREFIX }}-linux_amd64
           path: |
             src-tauri/target/*.deb
             src-tauri/target/*.rpm
