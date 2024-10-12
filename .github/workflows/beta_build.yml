@@ -175,8 +175,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build the app  
-        run: pnpm tauri build ${{ startsWith(matrix.os, 'macos') && '--target ' + $TARGET || '' }}
+      - name: Build the app 
+        if: startsWith(matrix.os, 'macos')
+        run: pnpm tauri build --target ${{ env.TARGET }}
+
+      - name: Build the app
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-22.04'
+        run: pnpm tauri build
 
       - name: Rename macos-aarch64
         if: startsWith(matrix.os, 'macos') && ${{ env.TARGET }} == 'aarch64-apple-darwin'
