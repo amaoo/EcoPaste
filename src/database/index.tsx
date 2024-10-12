@@ -5,9 +5,8 @@ import type {
 	TablePayload,
 } from "@/types/database";
 import { getName } from "@tauri-apps/api/app";
-import { removeFile } from "@tauri-apps/api/fs";
+import Database from "@tauri-apps/plugin-sql";
 import { find, isBoolean, isNil, map, omitBy, some } from "lodash-es";
-import Database from "tauri-plugin-sql-api";
 
 let db: Database | null;
 
@@ -34,7 +33,7 @@ export const initDatabase = async () => {
 			height INTEGER,
 			favorite INTEGER DEFAULT 0,
 			createTime TEXT,
-			remark TEXT
+			note TEXT
 		);
         `;
 	};
@@ -48,24 +47,30 @@ export const initDatabase = async () => {
 		"rich-text",
 	]);
 
+	const fields = await getFields("history");
+
 	// `isCollected` 更名 `favorite`
 	await renameField("history", "isCollected", "favorite");
 
 	// `size` 更名 `count`
 	await renameField("history", "size", "count");
 
-	// 新增 `remark`
-	await addField("history", "remark", "TEXT");
+	if (!some(fields, { name: "note" })) {
+		// 新增 `remark`
+		await addField("history", "remark", "TEXT");
+
+		// `remark` 更名 `note`
+		await renameField("history", "remark", "note");
+	}
 
 	// 将 `id` 从 INTEGER 转为 TEXT 类型
-	const fields = await getFields("history");
 	if (find(fields, { name: "id" })?.type === "INTEGER") {
 		const tableName = "temp_history";
 
 		await executeSQL(createHistoryQuery(tableName));
 
 		await executeSQL(
-			`INSERT INTO ${tableName} (id, type, [group], value, search, count, width, height, favorite, createTime, remark) SELECT CAST(id AS TEXT), type, [group], value, search, count, width, height, favorite, createTime, remark FROM history;`,
+			`INSERT INTO ${tableName} (id, type, [group], value, search, count, width, height, favorite, createTime, note) SELECT CAST(id AS TEXT), type, [group], value, search, count, width, height, favorite, createTime, note FROM history;`,
 		);
 
 		await executeSQL("DROP TABLE history;");
@@ -144,13 +149,10 @@ export const selectSQL = async <List,>(
  * @param tableName 表名称
  * @param payload 添加的数据
  */
-export const insertSQL = async (
-	tableName: TableName,
-	payload: TablePayload,
-) => {
+export const insertSQL = (tableName: TableName, payload: TablePayload) => {
 	const { keys, values, refs } = handlePayload(payload);
 
-	await executeSQL(
+	return executeSQL(
 		`INSERT INTO ${tableName} (${keys}) VALUES (${refs});`,
 		values,
 	);
@@ -161,17 +163,14 @@ export const insertSQL = async (
  * @param tableName 表名称
  * @param payload 修改的数据
  */
-export const updateSQL = async (
-	tableName: TableName,
-	payload: TablePayload,
-) => {
+export const updateSQL = (tableName: TableName, payload: TablePayload) => {
 	const { id, ...rest } = payload;
 
 	const { keys, values } = handlePayload(rest);
 
 	const setClause = map(keys, (item) => `${item} = ?`);
 
-	await executeSQL(
+	return executeSQL(
 		`UPDATE ${tableName} SET ${setClause} WHERE id = ?;`,
 		values.concat(id!),
 	);
@@ -191,7 +190,7 @@ export const deleteSQL = async (tableName: TableName, id: string) => {
 
 	if (type !== "image") return;
 
-	removeFile(getSaveImagePath(value));
+	return removeFile(getSaveImagePath(value));
 };
 
 /**

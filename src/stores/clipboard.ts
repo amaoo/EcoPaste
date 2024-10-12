@@ -5,6 +5,7 @@ export const CLIPBOARD_STORE_INITIAL_STATE: ClipboardStore = {
 	window: {
 		style: "float",
 		position: "remember",
+		backTop: false,
 	},
 
 	audio: {

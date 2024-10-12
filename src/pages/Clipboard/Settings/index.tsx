@@ -8,13 +8,22 @@ import SearchPosition from "./components/SearchPosition";
 import WindowPosition from "./components/WindowPosition";
 
 const ClipboardSettings = () => {
-	const { audio, search, content } = useSnapshot(clipboardStore);
+	const { window, audio, search, content } = useSnapshot(clipboardStore);
 	const { t } = useTranslation();
 
 	return (
 		<>
 			<ProList header={t("preference.clipboard.window_settings.title")}>
 				<WindowPosition />
+
+				<ProSwitch
+					title={t("preference.clipboard.window_settings.label.back_top")}
+					description={t("preference.clipboard.window_settings.hints.back_top")}
+					value={window.backTop}
+					onChange={(value) => {
+						clipboardStore.window.backTop = value;
+					}}
+				/>
 			</ProList>
 
 			{!isLinux() && (

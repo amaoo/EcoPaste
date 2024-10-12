@@ -18,7 +18,11 @@
 					"window_position": "クリップボード位置",
 					"window_position_remember": "位置を記憶する",
 					"window_position_follow": "マウスに従う",
-					"window_position_center": "スクリーンセンター"
+					"window_position_center": "スクリーンセンター",
+					"back_top": "トップページに戻る"
+				},
+				"hints": {
+					"back_top": "ウィンドウがアクティブになったら、一番上までスクロールし、最初のバーを選択する。"
 				}
 			},
 			"audio_settings": {
@@ -37,8 +41,8 @@
 					"position_bottom": "ボトム"
 				},
 				"hints": {
-					"default_focus": "クリップボードを開くとき、カーソルは検索ボックスにあります",
-					"auto_clear": "クリップボードを開いたときに検索ボックスの内容を自動で削除"
+					"default_focus": "ウィンドウがアクティブになると、デフォルトで検索ボックスにフォーカスを当てる。",
+					"auto_clear": "ウィンドウがアクティブになったときに検索ボックスの内容をクリアする"
 				}
 			},
 			"content_settings": {
@@ -117,7 +121,8 @@
 				"title": "ソフト設定",
 				"label": {
 					"auto_start": "ログイン時に起動",
-					"hide_tray": "トレイアイコンを隠す"
+					"show_menubar_icon": "メニューバーアイコンを表示する",
+					"show_taskbar_icon": "タスクバーアイコンを表示する"
 				}
 			},
 			"appearance_settings": {
@@ -128,9 +133,6 @@
 					"theme_auto": "システムに従う",
 					"theme_light": "ライト",
 					"theme_dark": "ダーク"
-				},
-				"hints": {
-					"theme": "注意: テーマを切り替えると、アプリは自動的に再起動します。"
 				}
 			},
 			"app_update": {
@@ -160,15 +162,16 @@
 			}
 		},
 		"data_backup": {
-			"storage_path": {
-				"title": "保存設定",
+			"storage_settings": {
+				"title": "ストレージ設定",
 				"label": {
-					"storage_path": "データ保存パス"
+					"data_storage_path": "データ保存パス",
+					"log_storage_path": "ログ保存パス"
 				},
 				"hints": {
-					"custom_path": "カスタム",
+					"custom_path": "カスタマイズ",
 					"default_path": "デフォルトに戻す",
-					"save_success": "変更に成功しました"
+					"change_success": "変更成功"
 				}
 			},
 			"import_export": {
@@ -198,6 +201,7 @@
 		"button": {
 			"context_menu": {
 				"copy": "コピー",
+				"note": "備考",
 				"paste_ocr_text": "OCRテキストペースト",
 				"paste_as_plain_text": "プレーンテキストとして貼り付け",
 				"unfavorite": "コレクションのキャンセル",

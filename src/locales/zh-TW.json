@@ -18,7 +18,11 @@
 					"window_position": "視窗位置",
 					"window_position_remember": "記住位置",
 					"window_position_follow": "跟隨滑鼠",
-					"window_position_center": "螢幕中央"
+					"window_position_center": "螢幕中央",
+					"back_top": "啟動時回到頂部"
+				},
+				"hints": {
+					"back_top": "啟動視窗時，滾動至頂部並選中首條"
 				}
 			},
 			"audio_settings": {
@@ -37,8 +41,8 @@
 					"position_bottom": "底部"
 				},
 				"hints": {
-					"default_focus": "每次打開視窗時，自動聚焦搜尋框",
-					"auto_clear": "每次打開視窗時，自動清除搜尋框內容"
+					"default_focus": "啟動視窗時，默認聚焦蒐索框",
+					"auto_clear": "啟動視窗時，清除蒐索框內容"
 				}
 			},
 			"content_settings": {
@@ -117,7 +121,8 @@
 				"title": "應用設定",
 				"label": {
 					"auto_start": "登入時啟動",
-					"hide_tray": "隱藏託盤圖標"
+					"show_menubar_icon": "顯示功能表列圖標",
+					"show_taskbar_icon": "顯示工作列圖標"
 				}
 			},
 			"appearance_settings": {
@@ -128,9 +133,6 @@
 					"theme_auto": "跟隨系統",
 					"theme_light": "亮色模式",
 					"theme_dark": "暗色模式"
-				},
-				"hints": {
-					"theme": "注意：切換主題時，應用將會自動重啟"
 				}
 			},
 			"app_update": {
@@ -160,15 +162,16 @@
 			}
 		},
 		"data_backup": {
-			"storage_path": {
+			"storage_settings": {
 				"title": "存儲設定",
 				"label": {
-					"storage_path": "數據存儲路徑"
+					"data_storage_path": "資料存儲路徑",
+					"log_storage_path": "日誌存儲路徑"
 				},
 				"hints": {
 					"custom_path": "自訂",
 					"default_path": "恢復預設",
-					"save_success": "更改成功"
+					"change_success": "更改成功"
 				}
 			},
 			"import_export": {
@@ -198,6 +201,7 @@
 		"button": {
 			"context_menu": {
 				"copy": "複製",
+				"note": "備註",
 				"paste_ocr_text": "粘貼OCR文字",
 				"paste_as_plain_text": "貼上為純文字",
 				"unfavorite": "取消收藏",

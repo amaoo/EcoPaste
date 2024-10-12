@@ -1,7 +1,7 @@
 import type { GlobalStore } from "@/types/store";
 import { getName, getVersion } from "@tauri-apps/api/app";
-import { type } from "@tauri-apps/api/os";
 import { appDataDir } from "@tauri-apps/api/path";
+import { type } from "@tauri-apps/plugin-os";
 import proxyWithPersist, {
 	PersistStrategy,
 	type ProxyPersistStorageEngine,
@@ -20,7 +20,8 @@ export const persistStrategies = PersistStrategy.MultiFile;
 export const GLOBAL_STORE_INITIAL_STATE: GlobalStore = {
 	app: {
 		autoStart: false,
-		hideTray: false,
+		showMenubarIcon: true,
+		showTaskbarIcon: false,
 	},
 
 	appearance: {

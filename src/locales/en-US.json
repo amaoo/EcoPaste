@@ -18,7 +18,11 @@
 					"window_position": "Window Position",
 					"window_position_remember": "Remember Position",
 					"window_position_follow": "Follow Mouse Cursor",
-					"window_position_center": "Center on Screen"
+					"window_position_center": "Center on Screen",
+					"back_top": "Back to top when activated"
+				},
+				"hints": {
+					"back_top": "When the window is activated, scroll to the top and check the first item"
 				}
 			},
 			"audio_settings": {
@@ -37,8 +41,8 @@
 					"position_bottom": "Bottom"
 				},
 				"hints": {
-					"default_focus": "Automatically focus on the search box when the window opens",
-					"auto_clear": "Automatically clear the search box when the window opens"
+					"default_focus": "Focuses the search box by default when the window is activated",
+					"auto_clear": "Clear search box contents when window is activated"
 				}
 			},
 			"content_settings": {
@@ -117,7 +121,8 @@
 				"title": "App Settings",
 				"label": {
 					"auto_start": "Start at Login",
-					"hide_tray": "Hide Tray Icon"
+					"show_menubar_icon": "Show Menubar Icon",
+					"show_taskbar_icon": "Show Taskbar Icon"
 				}
 			},
 			"appearance_settings": {
@@ -128,9 +133,6 @@
 					"theme_auto": "System",
 					"theme_light": "Light",
 					"theme_dark": "Dark"
-				},
-				"hints": {
-					"theme": "Note: The app will restart automatically when switching themes"
 				}
 			},
 			"app_update": {
@@ -160,15 +162,16 @@
 			}
 		},
 		"data_backup": {
-			"storage_path": {
+			"storage_settings": {
 				"title": "Storage Settings",
 				"label": {
-					"storage_path": "Data Storage Directory"
+					"data_storage_path": "Data Storage Path",
+					"log_storage_path": "Log Storage Path"
 				},
 				"hints": {
 					"custom_path": "Custom",
 					"default_path": "Restore Default",
-					"save_success": "Changes Saved Successfully"
+					"change_success": "Changed successfully"
 				}
 			},
 			"import_export": {
@@ -198,6 +201,7 @@
 		"button": {
 			"context_menu": {
 				"copy": "Copy",
+				"note": "Note",
 				"paste_ocr_text": "Paste OCR Text",
 				"paste_as_plain_text": "Paste as Plain Text",
 				"unfavorite": "Unfavorite",

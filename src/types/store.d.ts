@@ -1,3 +1,5 @@
+import type { OsType } from "@tauri-apps/plugin-os";
+
 export type Theme = "auto" | "light" | "dark";
 
 export type Language = (typeof LANGUAGE)[keyof typeof LANGUAGE];
@@ -11,7 +13,8 @@ export interface GlobalStore {
 	// 应用设置
 	app: {
 		autoStart: boolean;
-		hideTray: boolean;
+		showMenubarIcon: boolean;
+		showTaskbarIcon: boolean;
 	};
 
 	// 外观设置
@@ -53,6 +56,7 @@ export interface ClipboardStore {
 	window: {
 		style: "float" | "dock";
 		position: "remember" | "follow" | "center";
+		backTop: boolean;
 	};
 
 	// 音效设置

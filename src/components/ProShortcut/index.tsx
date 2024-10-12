@@ -81,7 +81,7 @@ const ProShortcut: FC<ProShortcutProps> = (props) => {
 		}
 	};
 
-	const handleKeyUp = async (event: KeyboardEvent) => {
+	const handleKeyUp = (event: KeyboardEvent) => {
 		const key = getEventKey(event);
 
 		remove(state.value, { key });
@@ -105,7 +105,13 @@ const ProShortcut: FC<ProShortcutProps> = (props) => {
 		return intersectionWith(state.value, normalKeys, isEqual)[0];
 	};
 
-	const registrable = () => hasModifierKey() && getNormalKey();
+	const registrable = () => {
+		if (state.value.length === 1) {
+			return /^F\d{1,2}$/.test(state.value[0].shortcut!);
+		}
+
+		return hasModifierKey() && getNormalKey();
+	};
 
 	const handleClear = (event: MouseEvent) => {
 		event.preventDefault();

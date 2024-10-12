@@ -4,10 +4,12 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { FloatButton } from "antd";
 import { findIndex } from "lodash-es";
 import Item from "./components/Item";
+import NoteModal, { type NoteModalRef } from "./components/NoteModal";
 
 const List = () => {
 	const { state, getList } = useContext(ClipboardPanelContext);
 	const outerRef = useRef<HTMLDivElement>(null);
+	const noteModelRef = useRef<NoteModalRef>(null);
 
 	const rowVirtualizer = useVirtualizer({
 		count: state.list.length,
@@ -15,6 +17,10 @@ const List = () => {
 		getScrollElement: () => outerRef.current,
 		estimateSize: () => 120,
 		getItemKey: (index) => state.list[index].id,
+	});
+
+	useMount(() => {
+		state.scrollToIndex = rowVirtualizer.scrollToIndex;
 	});
 
 	const isFocusWithin = useFocusWithin(document.body);
@@ -46,7 +52,7 @@ const List = () => {
 	}, [state.list.length]);
 
 	useOSKeyPress(
-		["space", "enter", "backspace", "uparrow", "downarrow"],
+		["space", "enter", "backspace", "uparrow", "downarrow", "home"],
 		(_, key) => {
 			state.eventBusId = state.activeId;
 
@@ -66,6 +72,9 @@ const List = () => {
 				// 选中下一个
 				case "downarrow":
 					return state.$eventBus?.emit(LISTEN_KEY.CLIPBOARD_ITEM_SELECT_NEXT);
+				// 回到顶部
+				case "home":
+					return rowVirtualizer.scrollToIndex?.(0);
 			}
 		},
 		{
@@ -94,6 +103,7 @@ const List = () => {
 								index={index}
 								data={{ ...data, value }}
 								style={{ height: size, transform: `translateY(${start}px)` }}
+								openNoteModel={() => noteModelRef.current?.open()}
 							/>
 						);
 					})}
@@ -102,6 +112,8 @@ const List = () => {
 
 			{/* @ts-ignore */}
 			<FloatButton.BackTop duration={0} target={() => outerRef.current} />
+
+			<NoteModal ref={noteModelRef} />
 		</>
 	);
 };

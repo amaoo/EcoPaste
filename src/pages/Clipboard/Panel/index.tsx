@@ -2,10 +2,9 @@ import type { AudioRef } from "@/components/Audio";
 import Audio from "@/components/Audio";
 import type { ClipboardItem, TablePayload } from "@/types/database";
 import { listen } from "@tauri-apps/api/event";
-import { registerAll, unregister } from "@tauri-apps/api/globalShortcut";
-import { appWindow } from "@tauri-apps/api/window";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import type { EventEmitter } from "ahooks/lib/useEventEmitter";
-import { find, findIndex, isEqual, last, merge, range } from "lodash-es";
+import { find, findIndex, isEqual, isNil, last, merge, range } from "lodash-es";
 import { nanoid } from "nanoid";
 import { createContext } from "react";
 import { useSnapshot } from "valtio";
@@ -20,6 +19,7 @@ interface State extends TablePayload {
 	eventBusId?: string;
 	$eventBus?: EventEmitter<string>;
 	quickPasteKeys: string[];
+	scrollToIndex?: (index: number) => void;
 }
 
 const INITIAL_STATE: State = {
@@ -46,16 +46,16 @@ const ClipboardPanel = () => {
 	useMount(() => {
 		state.$eventBus = $eventBus;
 
-		// 开启监听
+		// 开启剪贴板监听
 		startListen();
 
 		// 监听剪切板更新
-		onClipboardUpdate(async (payload) => {
+		onClipboardUpdate((payload) => {
 			if (clipboardStore.audio.copy) {
 				audioRef.current?.play();
 			}
 
-			const { type, value } = payload;
+			const { type, value, group } = payload;
 
 			const findItem = find(state.list, { type, value });
 
@@ -79,7 +79,9 @@ const ClipboardPanel = () => {
 					favorite: false,
 				};
 
-				state.list.unshift(data);
+				if (state.group === group || (isNil(state.group) && !state.favorite)) {
+					state.list.unshift(data);
+				}
 
 				insertSQL("history", data);
 			}
@@ -87,15 +89,6 @@ const ClipboardPanel = () => {
 
 		// 监听刷新列表
 		listen(LISTEN_KEY.REFRESH_CLIPBOARD_LIST, getList);
-
-		// 监听监听状态变更
-		listen<boolean>(LISTEN_KEY.TOGGLE_LISTENING, ({ payload }) => {
-			if (payload) {
-				startListen();
-			} else {
-				stopListen();
-			}
-		});
 
 		// 监听全局配置变更
 		listen(LISTEN_KEY.GLOBAL_STORE_CHANGED, ({ payload }) => {
@@ -115,10 +108,18 @@ const ClipboardPanel = () => {
 		listen(LISTEN_KEY.TOGGLE_MAIN_WINDOW_VISIBLE, toggleWindowVisible);
 
 		// 监听快速粘贴的启用状态变更
-		watchKey(globalStore.shortcut.quickPaste, "enable", registerQuickPaste);
+		watchKey(globalStore.shortcut.quickPaste, "enable", setQuickPasteKeys);
 
 		// 监听快速粘贴的快捷键变更
-		subscribeKey(globalStore.shortcut.quickPaste, "value", registerQuickPaste);
+		subscribeKey(globalStore.shortcut.quickPaste, "value", setQuickPasteKeys);
+
+		// 监听是否显示任务栏图标
+		watchKey(globalStore.app, "showTaskbarIcon", showTaskbarIcon);
+
+		// 切换剪贴板监听状态
+		listen<boolean>(LISTEN_KEY.TOGGLE_LISTEN_CLIPBOARD, ({ payload }) => {
+			toggleListen(payload);
+		});
 	});
 
 	// 监听窗口焦点
@@ -135,7 +136,7 @@ const ClipboardPanel = () => {
 
 	// 监听粘贴为纯文本的快捷键
 	useRegister(async () => {
-		const focused = await appWindow.isFocused();
+		const focused = await getCurrentWebviewWindow().isFocused();
 
 		if (!focused) return;
 
@@ -143,6 +144,20 @@ const ClipboardPanel = () => {
 
 		pasteClipboard(data, true);
 	}, [shortcut.pastePlain]);
+
+	// 监听快速粘贴的快捷键
+	useRegister(
+		async (event) => {
+			if (!globalStore.shortcut.quickPaste.enable) return;
+
+			const index = Number(last(event.shortcut));
+
+			const data = state.list[index - 1];
+
+			pasteClipboard(data);
+		},
+		[state.quickPasteKeys],
+	);
 
 	// 获取剪切板内容
 	const getList = async () => {
@@ -155,33 +170,21 @@ const ClipboardPanel = () => {
 		});
 	};
 
-	// 注册数字组合键快速粘贴的快捷键
-	const registerQuickPaste = async () => {
+	// 设置快捷粘贴的快捷键
+	const setQuickPasteKeys = () => {
 		const { enable, value } = globalStore.shortcut.quickPaste;
 
-		for await (const key of state.quickPasteKeys) {
-			await unregister(key);
+		if (!enable) {
+			state.quickPasteKeys = [];
+
+			return;
 		}
 
-		if (!enable) return;
-
-		const keys = range(1, 10).map((item) => [value, item].join("+"));
-
-		await registerAll(keys, async (shortcut) => {
-			if (!globalStore.shortcut.quickPaste.enable) return;
-
-			const index = Number(last(shortcut));
-
-			const data = state.list[index - 1];
-
-			pasteClipboard(data);
-		});
-
-		state.quickPasteKeys = keys;
+		state.quickPasteKeys = range(1, 10).map((item) => [value, item].join("+"));
 	};
 
 	return (
-		<>
+		<div>
 			{!isLinux() && <Audio hiddenIcon ref={audioRef} />}
 
 			<ClipboardPanelContext.Provider
@@ -192,7 +195,7 @@ const ClipboardPanel = () => {
 			>
 				{window.style === "float" ? <Float /> : <Dock />}
 			</ClipboardPanelContext.Provider>
-		</>
+		</div>
 	);
 };
 
