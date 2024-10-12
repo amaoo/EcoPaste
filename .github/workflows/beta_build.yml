@@ -185,11 +185,12 @@ jobs:
 
       - name: Rename macos-aarch64
         if: startsWith(matrix.os, 'macos') && ${{ env.TARGET }} == 'aarch64-apple-darwin'
-        run: mv src-tauri/target/release/bundle/dmg/*.dmg src-tauri/target/${{ env.FILE_PREFIX }}-aarch64.dmg
+        run: mv src-tauri/target/${{ env.TARGET }}/release/bundle/dmg/*.dmg src-tauri/target/${{ env.FILE_PREFIX }}-aarch64.dmg
 
       - name: Rename macos-x86_64
         if: startsWith(matrix.os, 'macos') && ${{ env.TARGET }} == 'x86_64-apple-darwin'
-        run: mv src-tauri/target/release/bundle/dmg/*.dmg src-tauri/target/${{ env.FILE_PREFIX }}-x64.dmg
+        # src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/EcoPaste_0.2.0-beta.2_x64.dmg
+        run: mv src-tauri/target/${{ env.TARGET }}/release/bundle/dmg/*.dmg src-tauri/target/${{ env.FILE_PREFIX }}-x64.dmg
 
       - name: Rename windows
         if: matrix.os == 'windows-latest'
