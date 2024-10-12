@@ -176,7 +176,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build the app  
-        run: pnpm tauri build ${{startsWith(matrix.os, 'macos') ? '--target ' + $TARGET : ''}}
+        run: pnpm tauri build ${{ startsWith(matrix.os, 'macos') && '--target ' + $TARGET || '' }}
 
       - name: Rename macos-aarch64
         if: startsWith(matrix.os, 'macos') && ${{ env.TARGET }} == 'aarch64-apple-darwin'
